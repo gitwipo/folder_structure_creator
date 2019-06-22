@@ -108,4 +108,14 @@ def create_directories(folder_dict):
 
 # Main exec
 if __name__ == '__main__':
-    print
+    # Setup logging
+    logging.basicConfig()
+
+    # Run preps
+    folder_dict = read_json(folder_json)
+    folder_dict = get_directories(folder_dict)
+    if string_replacement:
+        folder_dict = prep_directories(folder_dict)
+
+    # Run creation
+    create_directories(folder_dict)
