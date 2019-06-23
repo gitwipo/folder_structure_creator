@@ -1,14 +1,33 @@
 #!/usr/bin/env python
 
-"""
-file=folder_structure_creator.py
+# Copyright 2019 Wilfried Pollan
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   # http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
+
+"""
 Create a folder structure based on a dict.
 
-Inputs:
+file=folder_structure_creator.py
+
+This script can be used standalone or imported as a module to create a folder
+structure. It's possible to define dynamic values in the folder dict and
+replace them during the execution with second supplied substition dict.
+
+Inputs for standalone:
 1. <path>; path to creation root
 2. <path>; json folder dict
-3. <list>; dynamic values for string.template substition
+3. <path>; json template dict, dynamic values for string.template substition
 """
 
 
@@ -25,18 +44,37 @@ from string import Template
 
 
 # Read json folder template
-def read_json(folder_dict):
+def read_json(json_path):
+    """
+    Read the json file and return the dict.
+
+    :params json_path: path to json file
+    :type json_path: str
+    :return: json data as python dict
+    :rtype: dict
+    """
     # Init logger
     logger = logging.getLogger(__name__)
 
     # function routines
-    with open(folder_dict) as fobjs:
-        logger.debug('Loading json: {0}'.format(folder_dict))
+    with open(json_path) as fobjs:
+        logger.debug('Loading json: {0}'.format(json_path))
         return json.load(fobjs)
 
 
 # Create dict with directories to create
-def get_directories(d, parent_key=None):
+def get_directories(json_dict, parent_key=None):
+    """
+    Join the dict keys with os.sep to create path key and file element pairs.
+
+    :params json_dict: A dict where each key represent a leaf folder
+               and the values are files
+    :type json_dict: dict
+    :params parent_key: Internal used in the recursive function call.
+    :type parent_key: str
+    :return: A dict of folder path, file list pairs
+    :rtype: dict
+    """
     # Init logger
     logger = logging.getLogger(__name__)
 
@@ -45,7 +83,7 @@ def get_directories(d, parent_key=None):
     items = []
 
     # function routines
-    for k, v in d.items():
+    for k, v in json_dict.items():
         logger.debug('Processing: {0}, {1}'.format(k, v))
         new_key = parent_key + sep + k if parent_key else k
         if isinstance(v, collections.MutableMapping):
@@ -57,6 +95,18 @@ def get_directories(d, parent_key=None):
 
 # Subsitute templates
 def prep_directories(folder_dict, string_replacement):
+    """
+    Replace string templates in folder dict.
+
+    This function can be used to setup up dynamic folder paths and file list
+    using string.Template.
+    :params folder_dict: dict with folder path, file list pairs
+    :type folder_dict: dict
+    :params string_replacement: dict template, value pairs
+    :type string_replacement: dict
+    :return: resolved strings folder path, file list pairs
+    :rtype: dict
+    """
     # Init logger
     logger = logging.getLogger(__name__)
 
@@ -78,6 +128,14 @@ def prep_directories(folder_dict, string_replacement):
 
 # Create folder structure
 def create_directories(folder_dict, creation_root):
+    """
+    Create the folder paths in the specified root.
+
+    :params folder_dict: dict with folder path, file list pairs
+    :type folder_dict: dict
+    :params creation_root: Root for the created paths
+    :type creation_root: str
+    """
     # Init logger
     logger = logging.getLogger(__name__)
 
