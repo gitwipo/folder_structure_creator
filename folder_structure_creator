@@ -34,6 +34,7 @@ assert (os.path.isfile(args[2])
         and args[2].endswith('.json')), 'No valid json file supplied!'
 folder_json = args[2]
 # list of string replacements
+string_replacement = None
 if len(args) > 3:
     assert isinstance(args[3], list), 'No valid string replacement list supplied!'
     string_replacement = args[3]
@@ -47,7 +48,7 @@ def read_json(folder_dict):
     # function routines
     with open(folder_dict) as fobjs:
         logger.debug('Loading json: {0}'.format(folder_dict))
-        return json.loads(fobjs)
+        return json.load(fobjs)
 
 
 # Create dict with directories to create
@@ -109,7 +110,7 @@ def create_directories(folder_dict):
 # Main exec
 if __name__ == '__main__':
     # Setup logging
-    logging.basicConfig()
+    logging.basicConfig(level=logging.DEBUG)
 
     # Run preps
     folder_dict = read_json(folder_json)
