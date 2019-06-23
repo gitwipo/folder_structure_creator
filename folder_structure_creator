@@ -24,22 +24,6 @@ import logging
 from string import Template
 
 
-# Get input parameter
-args = sys.argv
-# Creation root
-assert os.path.isdir(os.path.abspath(args[1])), 'No valid creation root supplied!'
-creation_root = args[1]
-# Folder template dict
-assert (os.path.isfile(args[2])
-        and args[2].endswith('.json')), 'No valid json file supplied!'
-folder_json = args[2]
-# list of string replacements
-string_replacement = None
-if len(args) > 3:
-    assert isinstance(args[3], list), 'No valid string replacement list supplied!'
-    string_replacement = args[3]
-
-
 # Read json folder template
 def read_json(folder_dict):
     # Init logger
@@ -72,17 +56,19 @@ def get_directories(d, parent_key=None):
 
 
 # Subsitute templates
-def prep_directories(folder_dict):
+def prep_directories(folder_dict, string_replacement):
     # Init logger
     logger = logging.getLogger(__name__)
 
     # Init variables
     new_folder_dict = dict()
 
+    # Log replacements values
+    logger.debug('String replacement value pairs: {0}'.format(string_replacement))
+
     # function routines
     for path, file_elem in folder_dict.items():
         logger.debug('Processing: {0}, {1}'.format(path, file_elem))
-        logger.debug('String replacement value pairs: {0}'.format(string_replacement))
         new_path = Template(path).safe_substitute(**string_replacement)
         new_file_elem = [Template(i).safe_substitute(**string_replacement)
                          for i in file_elem]
@@ -91,7 +77,7 @@ def prep_directories(folder_dict):
 
 
 # Create folder structure
-def create_directories(folder_dict):
+def create_directories(folder_dict, creation_root):
     # Init logger
     logger = logging.getLogger(__name__)
 
@@ -102,9 +88,9 @@ def create_directories(folder_dict):
         try:
             os.makedirs(full_path)
             logger.info('Created: {0}'.format(full_path))
-        except IOError:
+        except OSError:
             logger.exception('Failed to create: {0}'.format(full_path))
-            raise
+            # raise
 
 
 # Main exec
@@ -112,11 +98,27 @@ if __name__ == '__main__':
     # Setup logging
     logging.basicConfig(level=logging.DEBUG)
 
+    # Get input parameter
+    args = sys.argv
+    # Creation root
+    assert os.path.isdir(os.path.abspath(args[1])), 'No valid creation root supplied!'
+    creation_root = args[1]
+    # Folder template dict
+    assert (os.path.isfile(os.path.abspath(args[2]))
+            and args[2].endswith('.json')), 'No valid json file supplied!'
+    folder_json = args[2]
+    # list of string replacements
+    string_replacement = None
+    if len(args) > 3:
+        assert (os.path.isfile(os.path.abspath(args[3]))
+                and args[3].endswith('.json')), 'No valid json string replacement supplied!'
+        string_replacement = read_json(args[3])
+
     # Run preps
     folder_dict = read_json(folder_json)
     folder_dict = get_directories(folder_dict)
     if string_replacement:
-        folder_dict = prep_directories(folder_dict)
+        folder_dict = prep_directories(folder_dict, string_replacement)
 
     # Run creation
-    create_directories(folder_dict)
+    create_directories(folder_dict, creation_root)
