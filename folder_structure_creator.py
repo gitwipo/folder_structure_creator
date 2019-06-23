@@ -96,7 +96,10 @@ def create_directories(folder_dict, creation_root):
 # Main exec
 if __name__ == '__main__':
     # Setup logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+            level=logging.DEBUG,
+            format='[%(asctime)s: %(funcName)-20s] > %(levelname)-6s > %(message)s'
+            )
 
     # Get input parameter
     args = sys.argv
