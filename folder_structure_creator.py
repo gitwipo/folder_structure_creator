@@ -140,9 +140,14 @@ def create_directories(folder_dict, creation_root):
     :type folder_dict: dict
     :params creation_root: Root for the created paths
     :type creation_root: str
+    :return created folder
+    :rtype list
     """
     # Init logger
     logger = logging.getLogger(__name__)
+
+    # store created paths
+    created_dirs = list()
 
     # function routines
     for path in folder_dict:
@@ -151,9 +156,13 @@ def create_directories(folder_dict, creation_root):
         try:
             os.makedirs(full_path)
             logger.info('Created: {0}'.format(full_path))
+            created_dirs.append(full_path)
         except OSError:
             logger.exception('Failed to create: {0}'.format(full_path))
             # raise
+
+    # Return
+    return created_dirs
 
 
 # Sub routines for file creation and copy
@@ -190,9 +199,14 @@ def create_files(folder_dict, creation_root):
     :type folder_dict: dict
     :params creation_root:  Root for the created files
     :type creation_root: str
+    :return created files
+    :rtype list
     """
     # Init logger
     logger = logging.getLogger(__name__)
+
+    # Store created files
+    created_files = list()
 
     # function routines
     for path, files in folder_dict.items():
@@ -217,6 +231,7 @@ def create_files(folder_dict, creation_root):
                     with open(dst_path, 'w') as f:
                         f.write('')
                     logger.info('Created {0}'.format(dst_path))
+                    created_files.append(dst_path)
                     continue
 
                 # Get destination path
@@ -224,6 +239,13 @@ def create_files(folder_dict, creation_root):
 
                 # Create the files
                 result = copy_file(file_elem, dst_path)
+
+                # Store created paths
+                if result:
+                    created_files.append(dst_path)
+
+    # Return created files
+    return created_files
 
 
 # Main exec
