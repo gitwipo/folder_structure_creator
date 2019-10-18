@@ -38,8 +38,8 @@ __author__ = 'Wilfried Pollan'
 import sys
 import os
 import json
-import collections
 import logging
+import shutil
 from string import Template
 
 
@@ -86,10 +86,15 @@ def get_directories(json_dict, parent_key=None):
     for k, v in json_dict.items():
         logger.debug('Processing: {0}, {1}'.format(k, v))
         new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
+        if isinstance(v, dict):
             items.extend(get_directories(v, parent_key=new_key).items())
         else:
-            items.append((new_key, v))
+            if isinstance(v, list):
+                items.append((new_key, v))
+            elif isinstance(v, basestring):
+                items.append((new_key, [v]))
+            else:
+                raise ValueError('Wrong file type. Correct types: str, list')
     return dict(items)
 
 
@@ -151,6 +156,76 @@ def create_directories(folder_dict, creation_root):
             # raise
 
 
+# Sub routines for file creation and copy
+def copy_file(src, dst):
+    """
+    Subroutine for coping file object.
+
+    :params src: file to copy
+    :type src: str
+    :params dst: destination path of the file
+    :type dst: str
+    :return: sucess
+    :rtype: boolean
+    """
+    # Init logger
+    logger = logging.getLogger(__name__)
+
+    # function routines
+    try:
+        shutil.copy2(src, dst)
+        logger.info('Copied {0} to {1}'.format(src, dst))
+        return True
+    except OSError:
+        logger.exception('Failed to copy: {0}'.format(src))
+        return False
+
+
+# Create the files listed as values
+def create_files(folder_dict, creation_root):
+    """
+    Create the files listed in value of the folder keys
+
+    :params folder_dict: dict with folder path, file list pairs
+    :type folder_dict: dict
+    :params creation_root:  Root for the created files
+    :type creation_root: str
+    """
+    # Init logger
+    logger = logging.getLogger(__name__)
+
+    # function routines
+    for path, files in folder_dict.items():
+        full_path = os.path.join(creation_root, path)
+        logger.debug('Processing folder: {0}'.format(full_path))
+
+        # if a list of files
+        if isinstance(files, list):
+            # loop over the file list
+            for file_elem in files:
+                logger.debug('Processing file: {0}'.format(file_elem))
+
+                # Check if the file elem is a path and exists
+                if (len(file_elem.replace('\\', '/').split('/')) > 1
+                        and not os.path.exists(file_elem)):
+                    logger.debug('Does not exists: {0}'.format(file_elem))
+                    continue
+
+                # Check if it is a valid string and create an empty file object
+                if isinstance(file_elem, basestring):
+                    dst_path = os.path.join(full_path, file_elem)
+                    with open(dst_path, 'w') as f:
+                        f.write('')
+                    logger.info('Created {0}'.format(dst_path))
+                    continue
+
+                # Get destination path
+                dst_path = os.path.join(full_path, os.path.basename(file_elem))
+
+                # Create the files
+                result = copy_file(file_elem, dst_path)
+
+
 # Main exec
 if __name__ == '__main__':
     # Setup logging
@@ -183,3 +258,5 @@ if __name__ == '__main__':
 
     # Run creation
     create_directories(folder_dict, creation_root)
+
+    create_files(folder_dict, creation_root)
