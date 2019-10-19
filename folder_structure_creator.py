@@ -232,17 +232,29 @@ def create_files(folder_dict, creation_root):
                 # Check if it is a valid string and create an empty file object
                 if isinstance(file_elem, basestring):
                     dst_path = os.path.join(full_path, file_elem)
-                    with open(dst_path, 'w') as f:
-                        f.write('')
-                    logger.info('Created {0}'.format(dst_path))
-                    created_files.append(dst_path)
-                    continue
+
+                    # Check if the file exits
+                    if not os.path.isfile(dst_path):
+
+                        # Create an empty file
+                        with open(dst_path, 'w') as f:
+                            f.write('')
+                        logger.info('Created {0}'.format(dst_path))
+                        created_files.append(dst_path)
+
+                    else:
+                        logger.warning('File exists: {0}'.format(dst_path))
+                        continue
 
                 # Get destination path
                 dst_path = os.path.join(full_path, os.path.basename(file_elem))
 
                 # Create the files
-                result = copy_file(file_elem, dst_path)
+                if not os.path.isfile(dst_path):
+                    result = copy_file(file_elem, dst_path)
+                else:
+                    logger.warning('File exists: {0}'.format(dst_path))
+                    result = None
 
                 # Store created paths
                 if result:
