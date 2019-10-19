@@ -241,6 +241,7 @@ def create_files(folder_dict, creation_root):
                             f.write('')
                         logger.info('Created {0}'.format(dst_path))
                         created_files.append(dst_path)
+                        continue
 
                     else:
                         logger.warning('File exists: {0}'.format(dst_path))
@@ -271,8 +272,8 @@ def create_files(folder_dict, creation_root):
 if __name__ == '__main__':
     # Setup logging
     logging.basicConfig(
-            level=logging.DEBUG,
-            format='[%(asctime)s: %(funcName)-20s] > %(levelname)-6s > %(message)s'
+            level=logging.INFO,
+            format='[%(asctime)s: %(lineno)3s|%(funcName)-20s] > %(levelname)-7s > %(message)s'
             )
 
     # Get input parameter
