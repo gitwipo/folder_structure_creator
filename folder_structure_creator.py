@@ -93,6 +93,8 @@ def get_directories(json_dict, parent_key=None):
                 items.append((new_key, v))
             elif isinstance(v, basestring):
                 items.append((new_key, [v]))
+            elif isinstance(v, bool):
+                items.append((new_key, None))
             else:
                 raise ValueError('Wrong file type. Correct types: str, list')
     return dict(items)
@@ -125,8 +127,10 @@ def prep_directories(folder_dict, string_replacement):
     for path, file_elem in folder_dict.items():
         logger.debug('Processing: {0}, {1}'.format(path, file_elem))
         new_path = Template(path).safe_substitute(**string_replacement)
-        new_file_elem = [Template(i).safe_substitute(**string_replacement)
-                         for i in file_elem]
+        new_file_elem = None
+        if isinstance(file_elem, list):
+            new_file_elem = [Template(i).safe_substitute(**string_replacement)
+                             for i in file_elem]
         new_folder_dict[new_path] = new_file_elem
     return new_folder_dict
 
@@ -243,6 +247,9 @@ def create_files(folder_dict, creation_root):
                 # Store created paths
                 if result:
                     created_files.append(dst_path)
+
+        else:
+            logger.debug('No files to create.')
 
     # Return created files
     return created_files

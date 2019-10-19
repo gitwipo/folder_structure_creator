@@ -1,5 +1,9 @@
 {"${test}":{
   "test2":"placeholder",
-  "test3":"placeholder"
+  "test3":"placeholder",
+  "test4":{
+      "subtest":"README",
+      "run":false
+    }
   }
 }
