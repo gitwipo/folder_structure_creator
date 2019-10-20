@@ -93,10 +93,10 @@ def get_directories(json_dict, parent_key=None):
                 items.append((new_key, v))
             elif isinstance(v, basestring):
                 items.append((new_key, [v]))
-            elif isinstance(v, bool):
+            elif v is None:
                 items.append((new_key, None))
             else:
-                raise ValueError('Wrong file type. Correct types: str, list')
+                raise ValueError('Wrong file type. Correct types: None, str, list')
     return dict(items)
 
 
