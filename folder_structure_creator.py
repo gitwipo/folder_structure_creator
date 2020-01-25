@@ -40,6 +40,7 @@ import os
 import json
 import logging
 import shutil
+import argparse
 from string import Template
 
 
@@ -276,21 +277,30 @@ if __name__ == '__main__':
             format='[%(asctime)s: %(lineno)3s|%(funcName)-20s] > %(levelname)-7s > %(message)s'
             )
 
+    # Setup argument parser
+    parser = argparse.ArgumentParser(
+            description='Create folder structure based on json file input.')
+    parser.add_argument('-r', '--root', help='Path to creation root.')
+    parser.add_argument('-f', '--folders',
+                        help='Path to json file containing the folder structure.')
+    parser.add_argument('-t', '--template',
+                        help='Path to template json containing dynamic value\
+                              pairs for python string.template substition.')
     # Get input parameter
-    args = sys.argv
+    args = parser.parse_args()
     # Creation root
-    assert os.path.isdir(os.path.abspath(args[1])), 'No valid creation root supplied!'
-    creation_root = args[1]
+    assert os.path.isdir(os.path.abspath(args.root)), 'No valid creation root supplied!'
+    creation_root = args.root
     # Folder template dict
-    assert (os.path.isfile(os.path.abspath(args[2]))
-            and args[2].endswith('.json')), 'No valid json file supplied!'
-    folder_json = args[2]
+    assert (os.path.isfile(os.path.abspath(args.folders))
+            and args.folders.endswith('.json')), 'No valid json file supplied!'
+    folder_json = args.folders
     # list of string replacements
     string_replacement = None
-    if len(args) > 3:
-        assert (os.path.isfile(os.path.abspath(args[3]))
-                and args[3].endswith('.json')), 'No valid json string replacement supplied!'
-        string_replacement = read_json(args[3])
+    if args.template:
+        assert (os.path.isfile(os.path.abspath(args.template))
+                and args.template.endswith('.json')), 'No valid json string replacement supplied!'
+        string_replacement = read_json(args.template)
 
     # Run preps
     folder_dict = read_json(folder_json)
