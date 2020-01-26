@@ -240,7 +240,7 @@ def create_files(folder_dict, creation_root):
                         # Create an empty file
                         with open(dst_path, 'w') as f:
                             f.write('')
-                        logger.info('Created {0}'.format(dst_path))
+                        logger.info('Created: {0}'.format(dst_path))
                         created_files.append(dst_path)
                         continue
 
