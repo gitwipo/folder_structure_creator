@@ -192,10 +192,15 @@ def copy_file(src, dst):
     # Init logger
     logger = logging.getLogger(__name__)
 
-    # function routines
+    # Check if file exists
+    if os.path.isfile(dst):
+        logger.warning('File exists: {0}'.format(dst))
+        return False
+
+    # Warp copy in try clause
     try:
         shutil.copy2(src, dst)
-        logger.info('Copied {0} to {1}'.format(src, dst))
+        logger.info('Copied: {0} to {1}'.format(src, dst))
         return True
     except OSError:
         logger.exception('Failed to copy: {0}'.format(src))
@@ -231,42 +236,40 @@ def create_files(folder_dict, creation_root):
             for file_elem in files:
                 logger.debug('Processing file: {0}'.format(file_elem))
 
-                # Check if the file elem is a path and exists
-                if (len(file_elem.replace('\\', '/').split('/')) > 1
-                        and not os.path.exists(file_elem)):
-                    logger.debug('Does not exists: {0}'.format(file_elem))
+                # Check if the file elem is a path and copy it
+                if (isinstance(file_elem, basestring)
+                        and len(file_elem.replace('\\', '/').split('/')) > 1):
+                    # Skip source file that does not exists
+                    if not os.path.exists(file_elem):
+                        logger.warning('Does not exists: {0}'.format(file_elem))
+                        continue
+
+                    # Get destination path
+                    dst_path = os.path.join(full_path,
+                                            os.path.basename(file_elem))
+
+                    # Create the files
+                    result = copy_file(file_elem, dst_path)
+
+                    # Store created paths
+                    if result:
+                        created_files.append(dst_path)
                     continue
 
                 # Check if it is a valid string and create an empty file object
-                if isinstance(file_elem, basestring):
+                elif isinstance(file_elem, basestring):
+                    # Get destination path
                     dst_path = os.path.join(full_path, file_elem)
 
                     # Check if the file exits
-                    if not os.path.isfile(dst_path):
-
-                        # Create an empty file
-                        with open(dst_path, 'w') as f:
-                            f.write('')
-                        logger.info('Created: {0}'.format(dst_path))
-                        created_files.append(dst_path)
-                        continue
-
-                    else:
+                    if os.path.isfile(dst_path):
                         logger.warning('File exists: {0}'.format(dst_path))
                         continue
 
-                # Get destination path
-                dst_path = os.path.join(full_path, os.path.basename(file_elem))
-
-                # Create the files
-                if not os.path.isfile(dst_path):
-                    result = copy_file(file_elem, dst_path)
-                else:
-                    logger.warning('File exists: {0}'.format(dst_path))
-                    result = None
-
-                # Store created paths
-                if result:
+                    # Create an empty file
+                    with open(dst_path, 'w') as f:
+                        f.write('')
+                    logger.info('Created: {0}'.format(dst_path))
                     created_files.append(dst_path)
 
         else:

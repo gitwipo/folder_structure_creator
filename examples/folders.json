@@ -1,14 +1,16 @@
 {"${test}":{
-  "test2":"placeholder",
-  "test3":"placeholder",
-  "test4":{
-      "subtest":"README",
-      "run":null,
-      "scenes":[
-          {"scene_template":"${scene}"},
-          "scene01",
-          "scene02"
-      ]
+    "full_path":"/home/wipo/Data_0_SSD/100_Work/prnd_2019-06-22_folder_structure_creator/repos/folder_structure_creator/examples/placeholder",
+    "rel_path": "./placeholder",
+    "test2":"placeholder",
+    "test3":"placeholder",
+    "test4":{
+        "subtest":"README",
+        "run":null,
+        "scenes":[
+            {"scene_template":"${scene}"},
+            "scene01",
+            "scene02"
+            ]
+        }
     }
-  }
 }
