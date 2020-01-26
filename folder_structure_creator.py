@@ -86,18 +86,25 @@ def get_directories(json_dict, parent_key=None):
     # function routines
     for k, v in json_dict.items():
         logger.debug('Processing: {0}, {1}'.format(k, v))
+        # Create root path
         new_key = parent_key + sep + k if parent_key else k
+        # Get folder dict
         if isinstance(v, dict):
             items.extend(get_directories(v, parent_key=new_key).items())
+        elif isinstance(v, list):
+            # Get sub folder dicts
+            dict_values = [i for i in v if isinstance(i, dict)]
+            for i in dict_values:
+                items.extend(get_directories(i, parent_key=new_key).items())
+            # Get all files
+            string_values = [i for i in v if isinstance(i, basestring)]
+            items.append((new_key, string_values))
+        elif isinstance(v, basestring):
+            items.append((new_key, [v]))
+        elif v is None:
+            items.append((new_key, None))
         else:
-            if isinstance(v, list):
-                items.append((new_key, v))
-            elif isinstance(v, basestring):
-                items.append((new_key, [v]))
-            elif v is None:
-                items.append((new_key, None))
-            else:
-                raise ValueError('Wrong file type. Correct types: None, str, list')
+            raise ValueError('Wrong file type. Correct types: None, str, list')
     return dict(items)
 
 
@@ -286,6 +293,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--template',
                         help='Path to template json containing dynamic value\
                               pairs for python string.template substition.')
+
     # Get input parameter
     args = parser.parse_args()
     # Creation root
