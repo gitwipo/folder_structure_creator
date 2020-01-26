@@ -3,7 +3,12 @@
   "test3":"placeholder",
   "test4":{
       "subtest":"README",
-      "run":false
+      "run":null,
+      "scenes":[
+          {"scene_template":"${scene}"},
+          "scene01",
+          "scene02"
+      ]
     }
   }
 }
