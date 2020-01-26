@@ -208,7 +208,7 @@ def copy_file(src, dst):
 
 
 # Create the files listed as values
-def create_files(folder_dict, creation_root):
+def create_files(folder_dict, creation_root, rel_root):
     """
     Create the files listed in value of the folder keys
 
@@ -216,6 +216,8 @@ def create_files(folder_dict, creation_root):
     :type folder_dict: dict
     :params creation_root:  Root for the created files
     :type creation_root: str
+    :params rel_root: Path to the start point of the relative file paths
+    :type rel_root: str
     :return created files
     :rtype list
     """
@@ -239,6 +241,10 @@ def create_files(folder_dict, creation_root):
                 # Check if the file elem is a path and copy it
                 if (isinstance(file_elem, basestring)
                         and len(file_elem.replace('\\', '/').split('/')) > 1):
+                    # Check for relative file path
+                    if file_elem.startswith('./'):
+                        file_elem = os.path.join(rel_root, file_elem[2:])
+
                     # Skip source file that does not exists
                     if not os.path.exists(file_elem):
                         logger.warning('Does not exists: {0}'.format(file_elem))
@@ -328,4 +334,4 @@ if __name__ == '__main__':
     # Run creation
     create_directories(folder_dict, creation_root)
 
-    create_files(folder_dict, creation_root)
+    create_files(folder_dict, creation_root, os.path.dirname(folder_json))
