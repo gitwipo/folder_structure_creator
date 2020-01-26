@@ -278,12 +278,6 @@ def create_files(folder_dict, creation_root):
 
 # Main exec
 if __name__ == '__main__':
-    # Setup logging
-    logging.basicConfig(
-            level=logging.INFO,
-            format='[%(asctime)s: %(lineno)3s|%(funcName)-20s] > %(levelname)-7s > %(message)s'
-            )
-
     # Setup argument parser
     parser = argparse.ArgumentParser(
             description='Create folder structure based on json file input.')
@@ -293,9 +287,21 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--template',
                         help='Path to template json containing dynamic value\
                               pairs for python string.template substition.')
+    parser.add_argument('-v', '--verbosity', action='count',
+                        help='Set verbosity level for logging.')
 
     # Get input parameter
     args = parser.parse_args()
+
+    # Setup logging
+    verbosity = 2
+    if args.verbosity:
+        verbosity = args.verbosity
+    logging.basicConfig(
+            level=verbosity*10,
+            format='[%(asctime)s: %(lineno)3s|%(funcName)-20s] > %(levelname)-7s > %(message)s'
+            )
+
     # Creation root
     assert os.path.isdir(os.path.abspath(args.root)), 'No valid creation root supplied!'
     creation_root = args.root
