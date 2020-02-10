@@ -52,7 +52,7 @@ folder_dict = fsc.prep_directories(folder_dict, string_replacement)
 fsc.create_directories(folder_dict, creation_root)
 
 # Create or copy the files to destination
-fsc.create_files(folder_dict, creation_root, os.path.dirname(folder_json))
+fsc.create_files(folder_dict, creation_root, os.path.dirname('folders.json'))
 ```
 The module can be used to automatically create predefined folder structures. It is
 possible to create a nested execution order.
