@@ -37,13 +37,13 @@ The module is split in separate functions. Here is the execution flow:
 from folder_structure_creator import folder_structure_creator as fsc
 
 # Read the folder json file
-folder_dict = fsc.read_json(folder_json)
+folder_dict = fsc.read_json('folders.json')
 
 # Create for all nested dict values a full path string as key and files as values
 folder_dict = fsc.get_directories(folder_dict)
 
 # Read the template josn file
-string_replacement = fsc.read_json(args.template)
+string_replacement = fsc.read_json('template.json')
 
 # Replace all occurences of string.templates in the folder and files
 folder_dict = fsc.prep_directories(folder_dict, string_replacement)
